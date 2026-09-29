@@ -7,36 +7,31 @@ import type { List, Task, Workspace } from "./types";
  * they all read from the same task array.
  */
 
-/** Tasks belonging to a view: "today" | "upcoming" | "list:<id>". */
-export function tasksForView(workspace: Workspace, view: string): Task[] {
-  return tasksForViewExcluding(workspace, view, []);
-}
-
 /**
- * Same as `tasksForView`, but hides optional task ids - used to skip the task
- * that is currently open in the detail panel.
+ * Tasks belonging to a view: "today" | "upcoming" | "list:<id>".
+ *
+ * Today and Upcoming hide completed tasks; a named list shows everything in it,
+ * done included, because that is where you go to see what you finished.
  */
-export function tasksForViewExcluding(
-  workspace: Workspace,
-  view: string,
-  excludeIds: string[],
-): Task[] {
-  const base = workspace.tasks.filter((task) => !excludeIds.includes(task.id));
-
+export function tasksForView(workspace: Workspace, view: string): Task[] {
   if (view === "today") {
-    return base.filter((task) => !task.done && isDueToday(task.dueDate));
+    return workspace.tasks.filter(
+      (task) => !task.done && isDueToday(task.dueDate),
+    );
   }
 
   if (view === "upcoming") {
-    return base.filter((task) => !task.done && isDueTodayOrLater(task.dueDate));
+    return workspace.tasks.filter(
+      (task) => !task.done && isDueTodayOrLater(task.dueDate),
+    );
   }
 
   if (view.startsWith("list:")) {
     const listId = view.slice("list:".length);
-    return base.filter((task) => task.listId === listId);
+    return workspace.tasks.filter((task) => task.listId === listId);
   }
 
-  return base;
+  return workspace.tasks;
 }
 
 /** Count shown next to a view name in the sidebar. */
@@ -77,12 +72,4 @@ export function listForTask(workspace: Workspace, task: Task): List | undefined 
  */
 export function subtaskTotal(task: Task): number {
   return task.subtasks.length;
-}
-
-/** Progress for the checkbox/checked state of a parent task. */
-export function subtaskProgress(task: Task): { done: number; total: number } {
-  return {
-    done: task.subtasks.filter((subtask) => subtask.done).length,
-    total: task.subtasks.length,
-  };
 }
