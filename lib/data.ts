@@ -1,24 +1,31 @@
-import { demoWorkspace, demoTaskId, demoView } from "./mock-data";
+import { requireUser } from "./auth";
+import { fetchWorkspace } from "./db/workspace";
+import { createServerSupabaseClient } from "./supabase/server";
 import type { Workspace } from "./types";
 
 /**
  * Single seam between the UI and its data.
  *
- * Today this returns demo data. Phase 3 replaces the body with Supabase
- * queries and nothing that calls it has to change - which is why the UI never
- * imports from lib/mock-data directly.
+ * Components never talk to Supabase directly - they receive a Workspace, and
+ * the pure selectors in lib/selectors.ts derive every count from it.
  */
 
 export async function getWorkspace(): Promise<Workspace> {
-  return demoWorkspace;
+  // The real auth gate. proxy.ts redirects for a nicer experience, but a request
+  // can reach a page without it, so the session is checked again here.
+  await requireUser();
+
+  const supabase = await createServerSupabaseClient();
+  return fetchWorkspace(supabase);
 }
 
-/** The view the app opens on. */
+/**
+ * The view the shell opens on.
+ *
+ * Interim: always "today". Phase 6 makes the active view a URL parameter so it
+ * survives a reload and can be linked to.
+ */
 export async function getActiveView(): Promise<string> {
-  return demoView;
+  return "today";
 }
 
-/** The task open in the detail panel, or null when nothing is selected. */
-export async function getSelectedTaskId(): Promise<string | null> {
-  return demoTaskId;
-}

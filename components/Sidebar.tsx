@@ -9,6 +9,7 @@ import {
   StickyNote,
 } from "lucide-react";
 
+import { signOut } from "@/lib/auth-actions";
 import { countForList, countForView } from "@/lib/selectors";
 import type { Workspace } from "@/lib/types";
 
@@ -111,10 +112,13 @@ export function Sidebar({
           icon={<Settings aria-hidden className="size-4" />}
           label="Settings"
         />
-        <SidebarRow
-          icon={<LogOut aria-hidden className="size-4" />}
-          label="Sign out"
-        />
+        <form action={signOut}>
+          <SidebarRow
+            type="submit"
+            icon={<LogOut aria-hidden className="size-4" />}
+            label="Sign out"
+          />
+        </form>
       </footer>
     </>
   );

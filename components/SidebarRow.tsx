@@ -18,6 +18,7 @@ export function SidebarRow({
   count,
   active = false,
   chevron = false,
+  type = "button",
   className,
 }: {
   label: string;
@@ -26,11 +27,13 @@ export function SidebarRow({
   count?: number;
   active?: boolean;
   chevron?: boolean;
+  /** "submit" lets the row act as the button of a surrounding form. */
+  type?: "button" | "submit";
   className?: string;
 }) {
   return (
     <button
-      type="button"
+      type={type}
       aria-current={active ? "page" : undefined}
       className={cn(
         "flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-left text-[15px] transition-colors",

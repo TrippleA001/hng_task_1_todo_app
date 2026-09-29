@@ -2,7 +2,7 @@ import { AppShell } from "@/components/AppShell";
 import { Sidebar } from "@/components/Sidebar";
 import { TaskDetailPanel } from "@/components/TaskDetailPanel";
 import { TaskList } from "@/components/TaskList";
-import { getActiveView, getSelectedTaskId, getWorkspace } from "@/lib/data";
+import { getActiveView, getWorkspace } from "@/lib/data";
 import { tasksForView, viewTitle } from "@/lib/selectors";
 
 /**
@@ -14,12 +14,11 @@ import { tasksForView, viewTitle } from "@/lib/selectors";
 export default async function Home() {
   const workspace = await getWorkspace();
   const activeView = await getActiveView();
-  const selectedTaskId = await getSelectedTaskId();
 
   const tasks = tasksForView(workspace, activeView);
-  const selectedTask = workspace.tasks.find(
-    (task) => task.id === selectedTaskId,
-  );
+  // Nothing is selectable yet, so open the first task in the view. Phase 6 turns
+  // the selection into a URL parameter.
+  const selectedTask = tasks[0] ?? null;
 
   return (
     <AppShell
