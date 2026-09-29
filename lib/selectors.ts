@@ -1,4 +1,4 @@
-import { isDueToday, isDueTodayOrLater } from "./format";
+import { isDueTodayOrLater, isDueTodayOrOverdue } from "./format";
 import type { List, Task, Workspace } from "./types";
 
 /**
@@ -10,13 +10,15 @@ import type { List, Task, Workspace } from "./types";
 /**
  * Tasks belonging to a view: "today" | "upcoming" | "list:<id>".
  *
- * Today and Upcoming hide completed tasks; a named list shows everything in it,
- * done included, because that is where you go to see what you finished.
+ * Today shows everything due today *or earlier* and Upcoming shows today
+ * onwards, so overdue tasks appear in Today only and never in both. A named
+ * list shows everything in it, done included, because that is where you go to
+ * see what you have finished.
  */
 export function tasksForView(workspace: Workspace, view: string): Task[] {
   if (view === "today") {
     return workspace.tasks.filter(
-      (task) => !task.done && isDueToday(task.dueDate),
+      (task) => !task.done && isDueTodayOrOverdue(task.dueDate),
     );
   }
 
@@ -32,6 +34,13 @@ export function tasksForView(workspace: Workspace, view: string): Task[] {
   }
 
   return workspace.tasks;
+}
+
+/** Case-insensitive title search. An empty query returns everything. */
+export function filterByTitle(tasks: Task[], query: string): Task[] {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return tasks;
+  return tasks.filter((task) => task.title.toLowerCase().includes(needle));
 }
 
 /** Count shown next to a view name in the sidebar. */

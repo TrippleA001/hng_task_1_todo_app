@@ -2,12 +2,14 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
 
-type Tone = "soft" | "outline" | "active";
+type Tone = "soft" | "outline" | "active" | "danger";
 
 const toneClasses: Record<Tone, string> = {
   soft: "bg-field text-ink-soft",
   outline: "border border-line-strong bg-white text-ink",
   active: "bg-line text-ink",
+  // Used for an overdue due date.
+  danger: "bg-swatch-red/30 text-ink",
 };
 
 /** A small pill used for a task's due date, subtask count, list and tags. */
