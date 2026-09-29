@@ -1,26 +1,56 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * Design tokens lifted from docs/project mood board.png.
+ * Tailwind v4 turns every --color-* below into utilities (bg-card, text-muted, ...).
+ */
+@theme {
+  /* Surfaces */
+  --color-canvas: #c9d6c1;
+  --color-card: #fbfbf9;
+  --color-sidebar: #f2f2f0;
+  --color-panel: #f7f7f5;
+  --color-field: #f1f1ef;
+
+  /* Ink */
+  --color-ink: #22262b;
+  --color-ink-soft: #4a4f57;
+  --color-muted: #8a8f98;
+
+  /* Lines */
+  --color-line: #e7e8e5;
+  --color-line-strong: #d8dad6;
+
+  /* Accents */
+  --color-accent: #ffc93c;
+  --color-accent-strong: #f5b400;
+  --color-pro: #2f7ff7;
+
+  /* List swatches */
+  --color-swatch-red: #f2706d;
+  --color-swatch-blue: #a8cbfa;
+  --color-swatch-yellow: #fce36b;
+
+  /* Type */
+  --font-display: var(--font-poppins);
+  --font-sans: var(--font-inter);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Headings in the mock are a bold geometric sans. */
+h1,
+h2,
+h3 {
+  font-family: var(--font-display), system-ui, sans-serif;
 }
