@@ -89,10 +89,23 @@ Two rules keep this maintainable:
 
 ## Status
 
-Done: scaffold, design system, the full three-pane shell against demo data, and
-the database migrations.
+Done:
 
-Outstanding: wiring the UI to Supabase (queries + server actions), auth pages
-and session refresh in `proxy.ts`, then the Upcoming / Calendar / Sticky Wall
-views, plus loading, empty and error states.
+- Next.js scaffold, design tokens and the three-pane shell from the mood board
+- Supabase schema, RLS and the per-account demo seed (`supabase/migrations`)
+- Auth: sign in / sign up / sign out, session refresh in `proxy.ts`, and a
+  server-side `requireUser()` gate that does not trust the proxy
+- Reads wired to Postgres, and mutations through Server Actions: create task,
+  toggle a task or subtask, save changes (title, description, list, due date,
+  tags), delete a task
+
+Outstanding:
+
+- The sidebar is still fixed on Today; making views URL-driven (`/today`,
+  `/upcoming`, `/list/<id>`) is the next step
+- Calendar and Sticky Wall views, and Settings
+- Creating lists and tags from the sidebar ("Add New List" / "Add Tag")
+- Loading, empty and error states; optimistic toggles; task reordering; search
+- Toggle failures are logged server-side rather than shown in the UI, so a failed
+  checkbox silently reverts - the reason to reach for optimistic UI plus a toast
 
