@@ -1,13 +1,14 @@
 import { CalendarDays, ChevronRight, ListChecks } from "lucide-react";
 
+import { setTaskDone } from "@/lib/actions/tasks";
 import { cn } from "@/lib/cn";
 import { formatDueDate } from "@/lib/format";
 import { subtaskTotal } from "@/lib/selectors";
 import type { List, Task } from "@/lib/types";
 
-import { Checkbox } from "./Checkbox";
 import { Chip } from "./Chip";
 import { Swatch } from "./Swatch";
+import { ToggleCheckbox } from "./ToggleCheckbox";
 
 /**
  * One row in the middle column: round checkbox, title, metadata chips, chevron.
@@ -34,9 +35,12 @@ export function TaskRow({
         className,
       )}
     >
-      <Checkbox
-        defaultChecked={task.done}
-        aria-label={`Mark "${task.title}" as done`}
+      <ToggleCheckbox
+        action={setTaskDone}
+        idField="taskId"
+        id={task.id}
+        checked={task.done}
+        label={`Mark "${task.title}" as done`}
         className="mt-0.5"
       />
       <div className="min-w-0 flex-1">

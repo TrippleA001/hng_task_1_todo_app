@@ -1,7 +1,7 @@
 import { listForTask } from "@/lib/selectors";
 import type { Task, Workspace } from "@/lib/types";
 
-import { AddRow } from "./AddRow";
+import { AddTaskRow } from "./AddTaskRow";
 import { CountBadge } from "./CountBadge";
 import { TaskRow } from "./TaskRow";
 
@@ -13,11 +13,17 @@ export function TaskList({
   title,
   tasks,
   workspace,
+  quickAddListId,
+  quickAddDueDate,
   className,
 }: {
   title: string;
   tasks: Task[];
   workspace: Workspace;
+  /** List a quick-added task joins. */
+  quickAddListId?: string;
+  /** Due date (ISO) a quick-added task gets - today, in the Today view. */
+  quickAddDueDate?: string;
   className?: string;
 }) {
   return (
@@ -31,7 +37,7 @@ export function TaskList({
         />
       </header>
 
-      <AddRow label="Add New Task" variant="field" />
+      <AddTaskRow listId={quickAddListId} dueDate={quickAddDueDate} />
 
       <div className="mt-3 flex-1 overflow-y-auto">
         {tasks.map((task) => (
