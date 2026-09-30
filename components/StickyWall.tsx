@@ -17,16 +17,24 @@ const TILTS = ["-rotate-1", "rotate-1", "-rotate-2", "rotate-2", "rotate-1", "-r
  * A presentation, not a second data source - each card links to `?task=` like
  * a list row does, so the detail panel and the back button behave identically.
  * Notes without a due date live here happily, which a date-shaped view cannot
- * say.
+ * say. Paged at 20 cards so the wall cannot grow the page weight without
+ * bound; the badge still shows the wall's true total.
  */
 export function StickyWall({
   tasks,
+  total,
   selectedTaskId = null,
   query = "",
+  page = 1,
+  pagination,
 }: {
   tasks: Task[];
+  /** True total across pages - the badge shows this, not the page size. */
+  total: number;
   selectedTaskId?: string | null;
   query?: string;
+  page?: number;
+  pagination?: React.ReactNode;
 }) {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -35,7 +43,7 @@ export function StickyWall({
           Sticky Wall
         </h1>
         <CountBadge
-          value={tasks.length}
+          value={total}
           active
           className="min-w-9 px-2 py-1 text-[19px] leading-6"
         />
@@ -53,7 +61,7 @@ export function StickyWall({
             return (
               <Link
                 key={task.id}
-                href={taskHref("sticky", task.id, query)}
+                href={taskHref("sticky", task.id, query, page)}
                 className={cn(
                   "block rounded-[3px] bg-swatch-yellow p-4 shadow-[0_12px_26px_-18px_rgba(0,0,0,0.7)] transition-shadow hover:shadow-[0_16px_30px_-18px_rgba(0,0,0,0.8)]",
                   TILTS[index % TILTS.length],
@@ -87,6 +95,8 @@ export function StickyWall({
           })}
         </div>
       )}
+
+      {pagination}
     </div>
   );
 }

@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import {
   addMonths,
@@ -11,7 +12,7 @@ import {
   startOfWeek,
 } from "date-fns";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
+import { useState } from "react";
 import { cn } from "@/lib/cn";
 import { today } from "@/lib/format";
 import type { Task } from "@/lib/types";
@@ -23,6 +24,57 @@ import { CountBadge } from "./CountBadge";
 const MONTH_PARAM = /^\d{4}-(0[1-9]|1[0-2])$/;
 
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+/**
+ * At most this many chips render per day; the rest hide behind "+N more" so
+ * one busy day cannot stretch its week row out of shape.
+ */
+const DAY_CHIP_LIMIT = 3;
+
+function DayTasks({
+  dayTasks,
+  dayKey,
+  query,
+}: {
+  dayTasks: Task[];
+  dayKey: string;
+  query: string;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const shown = expanded ? dayTasks : dayTasks.slice(0, DAY_CHIP_LIMIT);
+  const hidden = dayTasks.length - shown.length;
+
+  return (
+    // Fixed height: three chip rows plus the expander, so every week row stays
+    // even no matter how many tasks a day holds.
+    <div className="mt-1 h-[92px] space-y-1 overflow-hidden">
+      {shown.map((task) => (
+        <Link
+          key={task.id}
+          href={taskHref("calendar", task.id, query)}
+          title={task.title}
+          className={cn(
+            "block truncate rounded bg-black/[0.06] px-1.5 py-1 text-[12px] text-ink transition-colors hover:bg-black/[0.12]",
+            task.done && "text-muted line-through",
+          )}
+        >
+          {task.title}
+        </Link>
+      ))}
+      {!expanded && hidden > 0 && (
+        <button
+          type="button"
+          onClick={() => setExpanded(true)}
+          aria-label={`Show ${hidden} more tasks on ${dayKey}`}
+          aria-expanded="false"
+          className="block rounded px-1.5 py-1 text-[12px] font-medium text-muted transition-colors hover:bg-black/[0.06] hover:text-ink"
+        >
+          +{hidden} more
+        </button>
+      )}
+    </div>
+  );
+}
 
 /** URL for the calendar at a given month, carrying the search term across. */
 function monthHref(month: Date, query: string): string {
@@ -140,25 +192,15 @@ export function CalendarView({
               >
                 {format(day, "d")}
               </span>
-              <div className="mt-1 space-y-1">
-                {dayTasks.map((task) => (
-                  <Link
-                    key={task.id}
-                    href={taskHref("calendar", task.id, query)}
-                    title={task.title}
-                    className={cn(
-                      "block truncate rounded bg-black/[0.06] px-1.5 py-1 text-[12px] text-ink transition-colors hover:bg-black/[0.12]",
-                      task.done && "text-muted line-through",
-                    )}
-                  >
-                    {task.title}
-                  </Link>
-                ))}
-              </div>
+            <DayTasks dayTasks={dayTasks} dayKey={key} query={query} />
             </div>
           );
         })}
       </div>
+
+      <p className="sr-only" aria-live="polite">
+          {monthCount} {monthCount === 1 ? "task" : "tasks"} due this month.
+        </p>
 
       {monthCount === 0 && (
         <p className="mt-4 text-sm text-muted">

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { CalendarDays, ChevronRight, ListChecks } from "lucide-react";
 
-import { setTaskDone } from "@/lib/actions/tasks";
+import { setTaskDone, toggleTaskDoneWithResult } from "@/lib/actions/tasks";
 import { cn } from "@/lib/cn";
 import { formatDueDate, isOverdue } from "@/lib/format";
 import { subtaskTotal } from "@/lib/selectors";
@@ -25,7 +25,10 @@ export function TaskRow({
   list,
   view,
   query = "",
+  page = 1,
+  month,
   selected = false,
+  handle,
   className,
 }: {
   task: Task;
@@ -33,13 +36,17 @@ export function TaskRow({
   /** The active view, so the link returns to the same list after closing. */
   view: string;
   query?: string;
+  page?: number;
+  month?: string;
   selected?: boolean;
+  /** Optional drag handle, rendered in list views when reordering is on. */
+  handle?: React.ReactNode;
   className?: string;
 }) {
   const subtasks = subtaskTotal(task);
   const hasMeta = Boolean(task.dueDate) || subtasks > 0 || Boolean(list);
   const overdue = isOverdue(task.dueDate) && !task.done;
-  const href = taskHref(view, task.id, query);
+  const href = taskHref(view, task.id, query, page, month);
 
   return (
     <div
@@ -49,8 +56,10 @@ export function TaskRow({
         className,
       )}
     >
+      {handle}
       <ToggleCheckbox
         action={setTaskDone}
+        actionWithResult={toggleTaskDoneWithResult}
         idField="taskId"
         id={task.id}
         checked={task.done}

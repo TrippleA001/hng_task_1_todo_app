@@ -8,7 +8,6 @@ import {
 } from "lucide-react";
 
 import { signOut } from "@/lib/auth-actions";
-import { countForList, countForView } from "@/lib/selectors";
 import type { Workspace } from "@/lib/types";
 import { viewHref } from "@/lib/views";
 
@@ -24,16 +23,19 @@ import { TagChip } from "./TagChip";
  * The left column: menu header, search, the TASKS / LISTS / TAGS groups and the
  * Settings / Sign out footer.
  *
- * Counts come from lib/selectors so they cannot drift from the task list, and
- * every view row is a real link to `/?view=...` so navigation works with plain
- * HTML (back button, reload, open in new tab).
+ * Counts arrive as SQL head-count totals from the page (not derived from the
+ * 20-row task page), so the badges show true totals even when the visible
+ * list is paged. Every view row is a real link to `/?view=...` so navigation
+ * works with plain HTML (back button, reload, open in new tab).
  */
 export function Sidebar({
   workspace,
+  counts,
   activeView,
   query = "",
 }: {
   workspace: Workspace;
+  counts: { today: number; upcoming: number; perList: Record<string, number> };
   activeView: string;
   query?: string;
 }) {
@@ -50,7 +52,7 @@ export function Sidebar({
           <SidebarRow
             icon={<ChevronsRight aria-hidden className="size-4" />}
             label="Upcoming"
-            count={countForView(workspace, "upcoming")}
+            count={counts.upcoming}
             active={activeView === "upcoming"}
             href={viewHref("upcoming", query)}
             chevron
@@ -58,7 +60,7 @@ export function Sidebar({
           <SidebarRow
             icon={<ListTodo aria-hidden className="size-4" />}
             label="Today"
-            count={countForView(workspace, "today")}
+            count={counts.today}
             active={activeView === "today"}
             href={viewHref("today", query)}
             chevron
@@ -86,7 +88,7 @@ export function Sidebar({
               id={list.id}
               name={list.name}
               color={list.color}
-              count={countForList(workspace, list.id)}
+              count={counts.perList[list.id] ?? 0}
               active={activeView === `list:${list.id}`}
               href={viewHref(`list:${list.id}`, query)}
             />
