@@ -1,7 +1,9 @@
 import { AppShell } from "@/components/AppShell";
+import { CalendarView } from "@/components/CalendarView";
 import { OnboardingWalkthrough } from "@/components/OnboardingWalkthrough";
 import { SettingsPanel } from "@/components/SettingsPanel";
 import { Sidebar } from "@/components/Sidebar";
+import { StickyWall } from "@/components/StickyWall";
 import { TaskDetailPanel } from "@/components/TaskDetailPanel";
 import { TaskList } from "@/components/TaskList";
 import { requireUser } from "@/lib/auth";
@@ -34,6 +36,9 @@ export default async function Home({
   const activeView = normalizeView(readParam(params.view), workspace);
   const query = readParam(params.q)?.trim() ?? "";
   const isSettings = activeView === "settings";
+  const isCalendar = activeView === "calendar";
+  const isSticky = activeView === "sticky";
+  const month = readParam(params.month);
 
   // View first (so the heading count matches what is listed), then search.
   // Settings is not a task list - it swaps the middle pane entirely.
@@ -71,6 +76,14 @@ export default async function Home({
             email={user.email ?? "Signed in"}
             listCount={workspace.lists.length}
             taskCount={workspace.tasks.length}
+          />
+        ) : isCalendar ? (
+          <CalendarView tasks={tasks} month={month} query={query} />
+        ) : isSticky ? (
+          <StickyWall
+            tasks={tasks}
+            selectedTaskId={selectedTask?.id ?? null}
+            query={query}
           />
         ) : (
           <TaskList
