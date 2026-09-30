@@ -1,8 +1,10 @@
 import { AppShell } from "@/components/AppShell";
 import { OnboardingWalkthrough } from "@/components/OnboardingWalkthrough";
+import { SettingsPanel } from "@/components/SettingsPanel";
 import { Sidebar } from "@/components/Sidebar";
 import { TaskDetailPanel } from "@/components/TaskDetailPanel";
 import { TaskList } from "@/components/TaskList";
+import { requireUser } from "@/lib/auth";
 import { getWorkspace, isOnboarded } from "@/lib/data";
 import { toIsoDate, today } from "@/lib/format";
 import { filterByTitle, tasksForView, viewTitle } from "@/lib/selectors";
@@ -23,16 +25,21 @@ export default async function Home({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = await searchParams;
-  const [workspace, onboarded] = await Promise.all([
+  const [workspace, onboarded, user] = await Promise.all([
     getWorkspace(),
     isOnboarded(),
+    requireUser(),
   ]);
 
   const activeView = normalizeView(readParam(params.view), workspace);
   const query = readParam(params.q)?.trim() ?? "";
+  const isSettings = activeView === "settings";
 
   // View first (so the heading count matches what is listed), then search.
-  const tasks = filterByTitle(tasksForView(workspace, activeView), query);
+  // Settings is not a task list - it swaps the middle pane entirely.
+  const tasks = isSettings
+    ? []
+    : filterByTitle(tasksForView(workspace, activeView), query);
 
   // ?task= wins so a deep link opens the task you expect; the id has to be in
   // the visible list, otherwise the panel would show something the list does
@@ -59,19 +66,25 @@ export default async function Home({
         <Sidebar workspace={workspace} activeView={activeView} query={query} />
       }
       main={
-        <TaskList
-          title={viewTitle(workspace, activeView)}
-          tasks={tasks}
-          workspace={workspace}
-          view={activeView}
-          query={query}
-          selectedTaskId={selectedTask?.id ?? null}
-          emptyMessage={
-            query ? `No tasks match "${query}".` : undefined
-          }
-          quickAddListId={quickAddListId}
-          quickAddDueDate={quickAddDueDate}
-        />
+        isSettings ? (
+          <SettingsPanel
+            email={user.email ?? "Signed in"}
+            listCount={workspace.lists.length}
+            taskCount={workspace.tasks.length}
+          />
+        ) : (
+          <TaskList
+            title={viewTitle(workspace, activeView)}
+            tasks={tasks}
+            workspace={workspace}
+            view={activeView}
+            query={query}
+            selectedTaskId={selectedTask?.id ?? null}
+            emptyMessage={query ? `No tasks match "${query}".` : undefined}
+            quickAddListId={quickAddListId}
+            quickAddDueDate={quickAddDueDate}
+          />
+        )
       }
       detail={
         selectedTask ? (

@@ -109,6 +109,8 @@ export function Sidebar({
         <SidebarRow
           icon={<Settings aria-hidden className="size-4" />}
           label="Settings"
+          active={activeView === "settings"}
+          href={viewHref("settings", query)}
         />
         <form action={signOut}>
           <SidebarRow

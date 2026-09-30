@@ -1,7 +1,13 @@
 import type { Workspace } from "./types";
 
 /** Views that are not tied to a particular list. */
-const FIXED_VIEWS = ["today", "upcoming", "calendar", "sticky"] as const;
+const FIXED_VIEWS = [
+  "today",
+  "upcoming",
+  "calendar",
+  "sticky",
+  "settings",
+] as const;
 
 /**
  * Turns whatever was in the URL into a view the app can render.

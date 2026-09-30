@@ -60,6 +60,7 @@ export function viewTitle(workspace: Workspace, view: string): string {
   if (view === "upcoming") return "Upcoming";
   if (view === "calendar") return "Calendar";
   if (view === "sticky") return "Sticky Wall";
+  if (view === "settings") return "Settings";
 
   if (view.startsWith("list:")) {
     const listId = view.slice("list:".length);
