@@ -20,6 +20,7 @@ export function AppShell({
   detail,
   detailOpen = false,
   detailBackHref,
+  overlay,
 }: {
   sidebar: ReactNode;
   main: ReactNode;
@@ -28,6 +29,8 @@ export function AppShell({
   detailOpen?: boolean;
   /** Where the mobile Back link returns to - the current view. */
   detailBackHref?: string;
+  /** Fixed layer above the card - the onboarding walkthrough uses it. */
+  overlay?: ReactNode;
 }) {
   return (
     <div className="flex min-h-screen justify-center p-0 sm:p-4 lg:p-6">
@@ -66,6 +69,8 @@ export function AppShell({
             </aside>
           </div>
         </div>
+
+        {overlay}
       </div>
     </div>
   );

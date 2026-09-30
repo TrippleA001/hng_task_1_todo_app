@@ -3,7 +3,6 @@ import {
   ChevronsRight,
   ListTodo,
   LogOut,
-  Plus,
   Settings,
   StickyNote,
 } from "lucide-react";
@@ -13,6 +12,8 @@ import { countForList, countForView } from "@/lib/selectors";
 import type { Workspace } from "@/lib/types";
 import { viewHref } from "@/lib/views";
 
+import { AddListRow } from "./AddListRow";
+import { AddTagRow } from "./AddTagRow";
 import { Chip } from "./Chip";
 import { SearchBox } from "./SearchBox";
 import { SidebarRow } from "./SidebarRow";
@@ -89,10 +90,7 @@ export function Sidebar({
               href={viewHref(`list:${list.id}`, query)}
             />
           ))}
-          <SidebarRow
-            icon={<Plus aria-hidden className="size-4" />}
-            label="Add New List"
-          />
+          <AddListRow />
         </SidebarSection>
 
         <SidebarSection title="Tags">
@@ -102,9 +100,7 @@ export function Sidebar({
                 {tag.name}
               </Chip>
             ))}
-            <Chip tone="outline" icon={<Plus aria-hidden className="size-3" />}>
-              Add Tag
-            </Chip>
+            <AddTagRow />
           </div>
         </SidebarSection>
       </nav>

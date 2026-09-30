@@ -1,5 +1,5 @@
 /**
- * Types for the schema in supabase/migrations/0001_schema.sql.
+ * Types for the schema in supabase/migrations/0001-0004.
  *
  * Hand-written to match the SQL. If you ever install the Supabase CLI you can
  * regenerate this with `supabase gen types typescript --project-id <ref>`, which
@@ -30,6 +30,7 @@ export interface Database {
           color: string;
           position: number;
           created_at: string;
+          is_seeded: boolean;
         };
         Insert: {
           id?: string;
@@ -38,6 +39,7 @@ export interface Database {
           color?: string;
           position?: number;
           created_at?: string;
+          is_seeded?: boolean;
         };
         Update: {
           id?: string;
@@ -46,6 +48,7 @@ export interface Database {
           color?: string;
           position?: number;
           created_at?: string;
+          is_seeded?: boolean;
         };
         Relationships: [];
       };
@@ -55,9 +58,22 @@ export interface Database {
           user_id: string;
           name: string;
           created_at: string;
+          is_seeded: boolean;
         };
-        Insert: { id?: string; user_id: string; name: string; created_at?: string };
-        Update: { id?: string; user_id?: string; name?: string; created_at?: string };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          created_at?: string;
+          is_seeded?: boolean;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          created_at?: string;
+          is_seeded?: boolean;
+        };
         Relationships: [];
       };
       tasks: {
@@ -73,6 +89,7 @@ export interface Database {
           created_at: string;
           updated_at: string;
           completed_at: string | null;
+          is_seeded: boolean;
         };
         Insert: {
           id?: string;
@@ -86,6 +103,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
           completed_at?: string | null;
+          is_seeded?: boolean;
         };
         Update: {
           id?: string;
@@ -99,6 +117,7 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
           completed_at?: string | null;
+          is_seeded?: boolean;
         };
         Relationships: [];
       };
@@ -135,6 +154,27 @@ export interface Database {
           done?: boolean;
           position?: number;
           created_at?: string;
+        };
+        Relationships: [];
+      };
+      user_settings: {
+        Row: {
+          user_id: string;
+          onboarded_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          onboarded_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          onboarded_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
         };
         Relationships: [];
       };

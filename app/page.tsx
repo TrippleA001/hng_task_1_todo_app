@@ -1,8 +1,9 @@
 import { AppShell } from "@/components/AppShell";
+import { OnboardingWalkthrough } from "@/components/OnboardingWalkthrough";
 import { Sidebar } from "@/components/Sidebar";
 import { TaskDetailPanel } from "@/components/TaskDetailPanel";
 import { TaskList } from "@/components/TaskList";
-import { getWorkspace } from "@/lib/data";
+import { getWorkspace, isOnboarded } from "@/lib/data";
 import { toIsoDate, today } from "@/lib/format";
 import { filterByTitle, tasksForView, viewTitle } from "@/lib/selectors";
 import { normalizeView, readParam, viewHref } from "@/lib/views";
@@ -22,7 +23,10 @@ export default async function Home({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = await searchParams;
-  const workspace = await getWorkspace();
+  const [workspace, onboarded] = await Promise.all([
+    getWorkspace(),
+    isOnboarded(),
+  ]);
 
   const activeView = normalizeView(readParam(params.view), workspace);
   const query = readParam(params.q)?.trim() ?? "";
@@ -78,6 +82,7 @@ export default async function Home({
       }
       detailOpen={requestedTask !== undefined}
       detailBackHref={viewHref(activeView, query)}
+      overlay={onboarded ? undefined : <OnboardingWalkthrough />}
     />
   );
 }

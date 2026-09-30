@@ -50,7 +50,13 @@ export function TaskList({
         />
       </header>
 
-      <AddTaskRow listId={quickAddListId} dueDate={quickAddDueDate} />
+      {quickAddListId ? (
+        <AddTaskRow listId={quickAddListId} dueDate={quickAddDueDate} />
+      ) : (
+        <p className="rounded-[10px] border border-dashed border-line-strong px-3.5 py-3 text-[15px] text-muted">
+          Create a list in the sidebar, then add your first task here.
+        </p>
+      )}
 
       <div className="mt-3 flex-1 overflow-y-auto">
         {tasks.map((task) => (
