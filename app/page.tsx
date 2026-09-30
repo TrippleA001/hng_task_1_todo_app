@@ -5,7 +5,7 @@ import { TaskList } from "@/components/TaskList";
 import { getWorkspace } from "@/lib/data";
 import { toIsoDate, today } from "@/lib/format";
 import { filterByTitle, tasksForView, viewTitle } from "@/lib/selectors";
-import { normalizeView, readParam } from "@/lib/views";
+import { normalizeView, readParam, viewHref } from "@/lib/views";
 
 /**
  * The three-pane app shell.
@@ -33,13 +33,13 @@ export default async function Home({
   // ?task= wins so a deep link opens the task you expect; the id has to be in
   // the visible list, otherwise the panel would show something the list does
   // not. Falls back to the first visible task so the panel arrives populated.
+  // `requestedTask` also drives the mobile layout: only an explicit ?task= makes
+  // the detail pane take the full screen below `xl`.
   const requestedTaskId = readParam(params.task);
-  const selectedTask =
-    (requestedTaskId
-      ? tasks.find((task) => task.id === requestedTaskId)
-      : undefined) ??
-    tasks[0] ??
-    null;
+  const requestedTask = requestedTaskId
+    ? tasks.find((task) => task.id === requestedTaskId)
+    : undefined;
+  const selectedTask = requestedTask ?? tasks[0] ?? null;
 
   // Quick-add defaults: inside a list, a new task joins that list; in Today it
   // is due today.
@@ -76,6 +76,8 @@ export default async function Home({
           <p className="text-sm text-muted">Select a task to see its details.</p>
         )
       }
+      detailOpen={requestedTask !== undefined}
+      detailBackHref={viewHref(activeView, query)}
     />
   );
 }

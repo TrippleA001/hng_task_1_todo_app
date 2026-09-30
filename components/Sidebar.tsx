@@ -3,7 +3,6 @@ import {
   ChevronsRight,
   ListTodo,
   LogOut,
-  Menu,
   Plus,
   Settings,
   StickyNote,
@@ -41,13 +40,6 @@ export function Sidebar({
     <>
       <header className="flex items-center justify-between px-2 pb-4">
         <h1 className="text-[19px] font-bold text-ink">Menu</h1>
-        <button
-          type="button"
-          aria-label="Toggle sidebar"
-          className="text-ink transition-opacity hover:opacity-60"
-        >
-          <Menu aria-hidden className="size-5" />
-        </button>
       </header>
 
       <SearchBox className="mb-6" view={activeView} query={query} />
