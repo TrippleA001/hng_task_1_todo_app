@@ -31,7 +31,7 @@ const steps = [
   {
     icon: Plus,
     title: "Adding tasks takes seconds",
-    body: "Tap \"Add New Task\" at the bottom of the list, type your task and press Enter. From Today it lands with a due date of today; open a list first and the task joins that list instead.",
+    body: "Tap \"Add New Task\" at the bottom of the list, type your task and press Enter. Its details open straight away so you can set the date, list and tags; from Today it already lands due today.",
   },
   {
     icon: PanelRight,

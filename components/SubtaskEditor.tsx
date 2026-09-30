@@ -4,7 +4,11 @@ import { Plus, X } from "lucide-react";
 import { useActionState, useEffect, useRef, useState } from "react";
 
 import type { ActionResult } from "@/lib/actions/result";
-import { createSubtask, setSubtaskDone } from "@/lib/actions/subtasks";
+import {
+  createSubtask,
+  setSubtaskDone,
+  toggleSubtaskDoneWithResult,
+} from "@/lib/actions/subtasks";
 import { cn } from "@/lib/cn";
 import type { Subtask } from "@/lib/types";
 
@@ -96,6 +100,7 @@ export function SubtaskEditor({
         <div key={subtask.id} className="flex items-center gap-3 px-3 py-2">
           <ToggleCheckbox
             action={setSubtaskDone}
+            actionWithResult={toggleSubtaskDoneWithResult}
             idField="subtaskId"
             id={subtask.id}
             checked={subtask.done}
