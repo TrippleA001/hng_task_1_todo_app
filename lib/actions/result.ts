@@ -6,9 +6,14 @@
  * components watch it in an effect to clear themselves after a successful
  * submit, which a plain `null` error could not distinguish from a repeat.
  */
-export type ActionResult = { error: string | null; at?: number };
+export type ActionResult = {
+  error: string | null;
+  at?: number;
+  taskId?: string;
+};
 
-export const ok = (): ActionResult => ({ error: null, at: Date.now() });
+export const ok = (taskId?: string): ActionResult =>
+  taskId ? { error: null, at: Date.now(), taskId } : { error: null, at: Date.now() };
 
 export const fail = (message: string): ActionResult => ({ error: message });
 

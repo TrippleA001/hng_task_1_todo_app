@@ -2,9 +2,11 @@
 
 import { Plus, X } from "lucide-react";
 import { useActionState, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import type { ActionResult } from "@/lib/actions/result";
 import { createTask } from "@/lib/actions/tasks";
+import { taskHref } from "@/lib/views";
 
 const initialState: ActionResult = { error: null };
 
@@ -20,27 +22,40 @@ const rowClasses =
 export function AddTaskRow({
   listId,
   dueDate,
+  view,
+  query = "",
 }: {
   listId?: string;
   dueDate?: string;
+  /** The active view, so the new task's detail panel opens in place. */
+  view: string;
+  query?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [state, formAction, pending] = useActionState(createTask, initialState);
+  const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const lastSeenAt = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     if (open) inputRef.current?.focus();
   }, [open]);
 
   // Clear the field after each successful add so several tasks can be entered in
-  // a row. `state.at` changes on every success, which a null error cannot convey.
+  // a row, then open the new task's details so its date, list and tags can be
+  // set without hunting for it. `state.at` changes on every success, which a
+  // null error cannot convey.
   useEffect(() => {
-    if (state.at) {
+    if (state.at && state.at !== lastSeenAt.current) {
+      lastSeenAt.current = state.at;
       formRef.current?.reset();
       inputRef.current?.focus();
+      if (state.taskId) {
+        router.push(taskHref(view, state.taskId, query));
+      }
     }
-  }, [state.at]);
+  }, [state.at, state.taskId, router, view, query]);
 
   if (!open) {
     return (
