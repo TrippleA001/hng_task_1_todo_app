@@ -44,7 +44,7 @@ begin
    limit 1;
   if personal is null then
     insert into public.lists (user_id, name, color, position, is_seeded)
-    values (target_user, 'Personal', 'red', 0)
+    values (target_user, 'Personal', 'red', 0, true)
     returning id into personal;
   end if;
 
@@ -54,7 +54,7 @@ begin
    limit 1;
   if work is null then
     insert into public.lists (user_id, name, color, position, is_seeded)
-    values (target_user, 'Work', 'blue', 1)
+    values (target_user, 'Work', 'blue', 1, true)
     returning id into work;
   end if;
 
@@ -64,7 +64,7 @@ begin
    limit 1;
   if list_one is null then
     insert into public.lists (user_id, name, color, position, is_seeded)
-    values (target_user, 'List 1', 'yellow', 2)
+    values (target_user, 'List 1', 'yellow', 2, true)
     returning id into list_one;
   end if;
 
@@ -74,7 +74,7 @@ begin
    limit 1;
   if tag_one is null then
     insert into public.tags (user_id, name, is_seeded)
-    values (target_user, 'Tag 1')
+    values (target_user, 'Tag 1', true)
     returning id into tag_one;
   end if;
 
@@ -82,7 +82,7 @@ begin
     select 1 from public.tags where user_id = target_user and name = 'Tag 2'
   ) then
     insert into public.tags (user_id, name, is_seeded)
-    values (target_user, 'Tag 2');
+    values (target_user, 'Tag 2', true);
   end if;
 
   -- ---------------------------------------------------- tasks due today (5)

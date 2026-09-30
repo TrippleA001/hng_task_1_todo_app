@@ -31,6 +31,20 @@ The publishable key is meant to be public — it ships to the browser, and Row
 Level Security is what protects the data. **Never** put the
 secret/`service_role` key in a `NEXT_PUBLIC_*` variable.
 
+Reviewers can sign in with one click instead of creating an account. The
+`/login` page has a "Continue as demo reviewer" button backed by two
+**server-only** variables (no `NEXT_PUBLIC_` prefix, so the password never
+reaches the browser):
+
+```
+DEMO_EMAIL=tester@example.com
+DEMO_PASSWORD=...
+```
+
+Locally they live in `.env.local`; on Vercel they are project environment
+variables. Without them the button stays visible but returns a "not
+configured" message instead of signing in.
+
 ## Database
 
 Migrations live in [`supabase/migrations`](supabase/migrations) and are applied
@@ -89,7 +103,8 @@ Two rules keep this maintainable:
 1. Push the repo to GitHub.
 2. Import it in Vercel; the root directory is the repo root (this app).
 3. Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` as
-   project environment variables.
+   project environment variables, plus the server-only `DEMO_EMAIL` and
+   `DEMO_PASSWORD` that power the one-click demo sign-in on `/login`.
 4. In Supabase → Authentication → URL Configuration, set the Site URL to the
    Vercel domain and add `https://<domain>/**` to the redirect allow-list,
    otherwise login redirects fail with "invalid redirect URL".
@@ -101,8 +116,9 @@ Done:
 - Next.js scaffold, design tokens and the three-pane shell from the mood board,
   responsive: sidebar in a drawer below `lg`, detail pane full-screen below `xl`
 - Supabase schema, RLS and the per-account demo seed (`supabase/migrations`)
-- Auth: sign in / sign up / sign out, session refresh in `proxy.ts`, and a
-  server-side `requireUser()` gate that does not trust the proxy
+- Auth: sign in / sign up / sign out, one-click demo sign-in for reviewers
+  (server-only `DEMO_EMAIL` / `DEMO_PASSWORD`), session refresh in `proxy.ts`,
+  and a server-side `requireUser()` gate that does not trust the proxy
 - Reads wired to Postgres, and mutations through Server Actions: create task,
   toggle a task or subtask, save changes (title, description, list, due date,
   tags), delete a task, and create / rename / delete lists and tags from the

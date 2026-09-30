@@ -72,6 +72,29 @@ export async function signUp(
   redirect("/");
 }
 
+export async function signInWithDemo(_previous: AuthState): Promise<AuthState> {
+  void _previous;
+  const email = process.env.DEMO_EMAIL;
+  const password = process.env.DEMO_PASSWORD;
+
+  if (!email || !password) {
+    return {
+      error:
+        "Demo sign-in isn't configured on this deployment. Ask the site owner to add DEMO_EMAIL and DEMO_PASSWORD.",
+    };
+  }
+
+  const supabase = await createServerSupabaseClient();
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/", "layout");
+  redirect("/");
+}
+
 export async function signOut(): Promise<void> {
   const supabase = await createServerSupabaseClient();
   await supabase.auth.signOut();

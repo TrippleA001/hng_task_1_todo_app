@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 
-import { signIn, signUp, type AuthState } from "@/lib/auth-actions";
+import { signIn, signInWithDemo, signUp, type AuthState } from "@/lib/auth-actions";
 import { cn } from "@/lib/cn";
 
 const initialState: AuthState = { error: null };
@@ -13,9 +13,9 @@ const fieldClasses =
 type Mode = "signin" | "signup";
 
 /**
- * Sign in / create account form.
+ * Sign in / create account form, plus one-click demo sign-in on top.
  *
- * Two `useActionState` hooks (one per action) because the action passed to a
+ * Three `useActionState` hooks (one per action) because the action passed to a
  * form cannot change identity without changing the hook it came from.
  */
 export function LoginForm() {
@@ -27,6 +27,10 @@ export function LoginForm() {
   );
   const [signUpState, signUpAction, signUpPending] = useActionState(
     signUp,
+    initialState,
+  );
+  const [demoState, demoAction, demoPending] = useActionState(
+    signInWithDemo,
     initialState,
   );
 
@@ -41,6 +45,38 @@ export function LoginForm() {
 
   return (
     <div className="mt-6">
+      <form action={demoAction}>
+        <button
+          type="submit"
+          disabled={demoPending}
+          className="w-full rounded-[10px] bg-accent px-5 py-3 text-sm font-semibold text-ink shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-colors hover:bg-accent-strong disabled:opacity-60"
+        >
+          {demoPending ? "Signing you in…" : "Continue as demo reviewer"}
+        </button>
+        <p className="mt-2 text-[13px] leading-relaxed text-muted">
+          Sign-in is required because row-level security needs an authenticated
+          user. No confirmation email is sent for the demo account.
+        </p>
+        {demoState.error && (
+          <p
+            role="alert"
+            aria-live="polite"
+            className="mt-2 rounded-lg bg-swatch-red/20 px-3 py-2 text-[13px] text-ink"
+          >
+            {demoState.error}
+          </p>
+        )}
+      </form>
+
+      <div
+        aria-hidden="true"
+        className="my-5 flex items-center gap-3 text-[12px] font-medium text-muted"
+      >
+        <span className="h-px flex-1 bg-line" />
+        or use your own account
+        <span className="h-px flex-1 bg-line" />
+      </div>
+
       <div role="tablist" aria-label="Authentication" className="mb-5 flex gap-2">
         {tabs.map((tab) => (
           <button
