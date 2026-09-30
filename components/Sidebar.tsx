@@ -12,6 +12,7 @@ import {
 import { signOut } from "@/lib/auth-actions";
 import { countForList, countForView } from "@/lib/selectors";
 import type { Workspace } from "@/lib/types";
+import { viewHref } from "@/lib/views";
 
 import { Chip } from "./Chip";
 import { SearchBox } from "./SearchBox";
@@ -23,14 +24,18 @@ import { Swatch } from "./Swatch";
  * The left column: menu header, search, the TASKS / LISTS / TAGS groups and the
  * Settings / Sign out footer.
  *
- * Counts come from lib/selectors so they cannot drift from the task list.
+ * Counts come from lib/selectors so they cannot drift from the task list, and
+ * every view row is a real link to `/?view=...` so navigation works with plain
+ * HTML (back button, reload, open in new tab).
  */
 export function Sidebar({
   workspace,
   activeView,
+  query = "",
 }: {
   workspace: Workspace;
   activeView: string;
+  query?: string;
 }) {
   return (
     <>
@@ -45,7 +50,7 @@ export function Sidebar({
         </button>
       </header>
 
-      <SearchBox className="mb-6" />
+      <SearchBox className="mb-6" view={activeView} query={query} />
 
       <nav className="flex-1 space-y-6 overflow-y-auto">
         <SidebarSection title="Tasks">
@@ -54,6 +59,7 @@ export function Sidebar({
             label="Upcoming"
             count={countForView(workspace, "upcoming")}
             active={activeView === "upcoming"}
+            href={viewHref("upcoming", query)}
             chevron
           />
           <SidebarRow
@@ -61,18 +67,21 @@ export function Sidebar({
             label="Today"
             count={countForView(workspace, "today")}
             active={activeView === "today"}
+            href={viewHref("today", query)}
             chevron
           />
           <SidebarRow
             icon={<CalendarDays aria-hidden className="size-4" />}
             label="Calendar"
             active={activeView === "calendar"}
+            href={viewHref("calendar", query)}
             chevron
           />
           <SidebarRow
             icon={<StickyNote aria-hidden className="size-4" />}
             label="Sticky Wall"
             active={activeView === "sticky"}
+            href={viewHref("sticky", query)}
             chevron
           />
         </SidebarSection>
@@ -85,6 +94,7 @@ export function Sidebar({
               label={list.name}
               count={countForList(workspace, list.id)}
               active={activeView === `list:${list.id}`}
+              href={viewHref(`list:${list.id}`, query)}
             />
           ))}
           <SidebarRow

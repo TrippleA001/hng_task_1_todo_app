@@ -2,27 +2,47 @@ import { AppShell } from "@/components/AppShell";
 import { Sidebar } from "@/components/Sidebar";
 import { TaskDetailPanel } from "@/components/TaskDetailPanel";
 import { TaskList } from "@/components/TaskList";
-import { getActiveView, getWorkspace } from "@/lib/data";
+import { getWorkspace } from "@/lib/data";
 import { toIsoDate, today } from "@/lib/format";
-import { tasksForView, viewTitle } from "@/lib/selectors";
+import { filterByTitle, tasksForView, viewTitle } from "@/lib/selectors";
+import { normalizeView, readParam } from "@/lib/views";
 
 /**
  * The three-pane app shell.
  *
- * Data arrives through lib/data and every mutation goes through the Server
- * Actions in lib/actions; no component talks to Supabase directly.
+ * The view is entirely URL-driven: `?view=` picks the list, `?task=` opens the
+ * detail panel, and `?q=` filters by title - so every screen is shareable,
+ * reloadable, and the back button behaves. Data arrives through lib/data and
+ * every mutation goes through the Server Actions in lib/actions; no component
+ * talks to Supabase directly.
  */
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
   const workspace = await getWorkspace();
-  const activeView = await getActiveView();
 
-  const tasks = tasksForView(workspace, activeView);
-  // Nothing is selectable yet, so open the first task in the view. Phase 6 turns
-  // the selection into a URL parameter.
-  const selectedTask = tasks[0] ?? null;
+  const activeView = normalizeView(readParam(params.view), workspace);
+  const query = readParam(params.q)?.trim() ?? "";
 
-  // Quick-add defaults: inside a list, a new task joins that list; in Today it is
-  // due today.
+  // View first (so the heading count matches what is listed), then search.
+  const tasks = filterByTitle(tasksForView(workspace, activeView), query);
+
+  // ?task= wins so a deep link opens the task you expect; the id has to be in
+  // the visible list, otherwise the panel would show something the list does
+  // not. Falls back to the first visible task so the panel arrives populated.
+  const requestedTaskId = readParam(params.task);
+  const selectedTask =
+    (requestedTaskId
+      ? tasks.find((task) => task.id === requestedTaskId)
+      : undefined) ??
+    tasks[0] ??
+    null;
+
+  // Quick-add defaults: inside a list, a new task joins that list; in Today it
+  // is due today.
   const quickAddListId = activeView.startsWith("list:")
     ? activeView.slice("list:".length)
     : workspace.lists[0]?.id;
@@ -31,12 +51,20 @@ export default async function Home() {
 
   return (
     <AppShell
-      sidebar={<Sidebar workspace={workspace} activeView={activeView} />}
+      sidebar={
+        <Sidebar workspace={workspace} activeView={activeView} query={query} />
+      }
       main={
         <TaskList
           title={viewTitle(workspace, activeView)}
           tasks={tasks}
           workspace={workspace}
+          view={activeView}
+          query={query}
+          selectedTaskId={selectedTask?.id ?? null}
+          emptyMessage={
+            query ? `No tasks match "${query}".` : undefined
+          }
           quickAddListId={quickAddListId}
           quickAddDueDate={quickAddDueDate}
         />
@@ -45,9 +73,7 @@ export default async function Home() {
         selectedTask ? (
           <TaskDetailPanel task={selectedTask} workspace={workspace} />
         ) : (
-          <p className="text-sm text-muted">
-            Select a task to see its details.
-          </p>
+          <p className="text-sm text-muted">Select a task to see its details.</p>
         )
       }
     />

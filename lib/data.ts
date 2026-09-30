@@ -19,13 +19,3 @@ export async function getWorkspace(): Promise<Workspace> {
   return fetchWorkspace(supabase);
 }
 
-/**
- * The view the shell opens on.
- *
- * Interim: always "today". Phase 6 makes the active view a URL parameter so it
- * survives a reload and can be linked to.
- */
-export async function getActiveView(): Promise<string> {
-  return "today";
-}
-

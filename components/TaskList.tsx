@@ -8,11 +8,18 @@ import { TaskRow } from "./TaskRow";
 /**
  * The middle column: a bold view title with its count, the add row, then the
  * tasks themselves.
+ *
+ * Each row links itself into the detail panel (`?task=`), so `selectedTaskId`
+ * only drives the highlight - selection is a URL, not component state.
  */
 export function TaskList({
   title,
   tasks,
   workspace,
+  view,
+  query = "",
+  selectedTaskId = null,
+  emptyMessage,
   quickAddListId,
   quickAddDueDate,
   className,
@@ -20,6 +27,12 @@ export function TaskList({
   title: string;
   tasks: Task[];
   workspace: Workspace;
+  /** The active view, carried into every row's link. */
+  view: string;
+  query?: string;
+  selectedTaskId?: string | null;
+  /** Overrides the default empty-state line, e.g. when a search matched nothing. */
+  emptyMessage?: string;
   /** List a quick-added task joins. */
   quickAddListId?: string;
   /** Due date (ISO) a quick-added task gets - today, in the Today view. */
@@ -45,11 +58,14 @@ export function TaskList({
             key={task.id}
             task={task}
             list={listForTask(workspace, task)}
+            view={view}
+            query={query}
+            selected={task.id === selectedTaskId}
           />
         ))}
         {tasks.length === 0 && (
           <p className="py-10 text-center text-sm text-muted">
-            Nothing here yet.
+            {emptyMessage ?? "Nothing here yet."}
           </p>
         )}
       </div>
