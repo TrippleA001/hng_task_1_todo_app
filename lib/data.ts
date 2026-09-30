@@ -1,7 +1,6 @@
 import { requireUser } from "./auth";
-import { fetchWorkspace } from "./db/workspace";
+import { fetchWorkspace, type ScopedWorkspace, type TaskScope } from "./db/workspace";
 import { createServerSupabaseClient } from "./supabase/server";
-import type { Workspace } from "./types";
 
 /**
  * Single seam between the UI and its data.
@@ -10,13 +9,16 @@ import type { Workspace } from "./types";
  * the pure selectors in lib/selectors.ts derive every count from it.
  */
 
-export async function getWorkspace(): Promise<Workspace> {
+export async function getWorkspace(
+  scope: TaskScope,
+  selectedTaskId?: string | null,
+): Promise<ScopedWorkspace> {
   // The real auth gate. proxy.ts redirects for a nicer experience, but a request
   // can reach a page without it, so the session is checked again here.
   await requireUser();
 
   const supabase = await createServerSupabaseClient();
-  return fetchWorkspace(supabase);
+  return fetchWorkspace(supabase, scope, selectedTaskId);
 }
 
 /**

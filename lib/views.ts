@@ -29,7 +29,7 @@ export function normalizeView(
   return (FIXED_VIEWS as readonly string[]).includes(raw) ? raw : "today";
 }
 
-/** URL for a view, carrying the current search term across. */
+/** URL for a view, carrying the search term (resetting to page 1). */
 export function viewHref(view: string, query = ""): string {
   const params = new URLSearchParams({ view });
   if (query) params.set("q", query);
@@ -37,9 +37,17 @@ export function viewHref(view: string, query = ""): string {
 }
 
 /** URL for a view with one task open in the detail panel. */
-export function taskHref(view: string, taskId: string, query = ""): string {
+export function taskHref(
+  view: string,
+  taskId: string,
+  query = "",
+  page = 1,
+  month?: string,
+): string {
   const params = new URLSearchParams({ view, task: taskId });
   if (query) params.set("q", query);
+  if (month) params.set("month", month);
+  if (page > 1) params.set("page", String(page));
   return `/?${params.toString()}`;
 }
 
