@@ -1,11 +1,20 @@
 "use client";
 
 import { Check } from "lucide-react";
+import {
+  startTransition,
+  useActionState,
+  useOptimistic,
+  useRef,
+} from "react";
 import { useFormStatus } from "react-dom";
+import { toast } from "sonner";
 
+import type { ActionResult } from "@/lib/actions/result";
 import { cn } from "@/lib/cn";
 
 type ToggleAction = (formData: FormData) => Promise<void>;
+type ToggleActionWithResult = (formData: FormData) => Promise<ActionResult>;
 
 function SubmitCircle({
   checked,
@@ -52,9 +61,16 @@ function SubmitCircle({
  * It is a submit button rather than an <input type="checkbox"> so that toggling
  * works without JavaScript, and the hidden `done` field carries the *target*
  * state (the opposite of the current one).
+ *
+ * Once hydrated, submits are intercepted: the tick applies optimistically via
+ * `useOptimistic` (a failed toggle snaps back automatically when the transition
+ * ends) and failures surface as a toast. The no-JS fallback keeps working
+ * because React only runs `onSubmit` after hydration; without JS the native
+ * POST hits the void form action.
  */
 export function ToggleCheckbox({
   action,
+  actionWithResult,
   idField,
   id,
   checked,
@@ -62,20 +78,60 @@ export function ToggleCheckbox({
   className,
 }: {
   action: ToggleAction;
+  actionWithResult: ToggleActionWithResult;
   idField: "taskId" | "subtaskId";
   id: string;
   checked: boolean;
   label: string;
   className?: string;
 }) {
+  const [actionState, submitWithResult] = useActionState(
+    async (_previous: ActionResult | null, formData: FormData) => {
+      const result = await actionWithResult(formData);
+      if (result.error) toast.error(result.error);
+      return result;
+    },
+    null,
+  );
+  const [optimisticChecked, toggleOptimistic] = useOptimistic(
+    checked,
+    (_current: boolean, next: boolean) => next,
+  );
+  const formRef = useRef<HTMLFormElement>(null);
+
   return (
     // `contents` keeps the form boxless: the button becomes the flex item, so
     // callers can pass layout classes (e.g. a top margin) and they apply to the
     // button rather than to an invisible wrapper.
-    <form action={action} className="contents">
+    <form
+      ref={formRef}
+      action={action}
+      className="contents"
+      onSubmit={(event) => {
+        event.preventDefault();
+        const formData = new FormData(formRef.current ?? event.currentTarget);
+        startTransition(() => {
+          toggleOptimistic(!optimisticChecked);
+          submitWithResult(formData);
+        });
+      }}
+    >
       <input type="hidden" name={idField} value={id} />
-      <input type="hidden" name="done" value={checked ? "false" : "true"} />
-      <SubmitCircle checked={checked} label={label} className={className} />
+      <input
+        type="hidden"
+        name="done"
+        value={optimisticChecked ? "false" : "true"}
+      />
+      <SubmitCircle
+        checked={optimisticChecked}
+        label={label}
+        className={className}
+      />
+      {actionState?.error ? (
+        <span className="sr-only" role="alert">
+          {actionState.error}
+        </span>
+      ) : null}
     </form>
   );
 }

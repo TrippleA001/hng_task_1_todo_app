@@ -9,9 +9,11 @@ import { fail, ok, readBoolean, readString, type ActionResult } from "./result";
 /**
  * Mutations for subtasks.
  *
- * `createSubtask` takes `(previous, formData)` for `useActionState`;
- * `setSubtaskDone` returns void because it is passed straight to
- * `<form action={...}>`.
+ * `createSubtask` takes `(previous, formData)` for `useActionState`.
+ *
+ * `setSubtaskDone` (void) is the no-JS form action;
+ * `toggleSubtaskDoneWithResult` is what the hydrated checkbox calls so a
+ * failure can be toasted instead of silently reverting.
  *
  * Both re-check the session and rely on RLS for ownership. `createSubtask`
  * additionally verifies the parent task is readable by this user: the subtasks
@@ -78,10 +80,17 @@ async function applySubtaskDone(formData: FormData): Promise<ActionResult> {
   return ok();
 }
 
-/** Toggles a subtask's done flag. Void so it can be a form action directly. */
+/** Void form action for the no-JS fallback. */
 export async function setSubtaskDone(formData: FormData): Promise<void> {
   const result = await applySubtaskDone(formData);
   if (result.error) {
     console.error("setSubtaskDone failed:", result.error);
   }
+}
+
+/** Returns the toggle result so the client can toast on failure. */
+export async function toggleSubtaskDoneWithResult(
+  formData: FormData,
+): Promise<ActionResult> {
+  return applySubtaskDone(formData);
 }
