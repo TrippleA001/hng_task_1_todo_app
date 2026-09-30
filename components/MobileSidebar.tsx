@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState, type MouseEvent, type ReactNode } from "react";
 import { Menu, X } from "lucide-react";
 
 /**
@@ -13,6 +13,14 @@ import { Menu, X } from "lucide-react";
  */
 export function MobileSidebar({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
+
+  // Navigating closes the drawer: any click that lands on a link (sidebar rows,
+  // settings, sign out) should take the user straight to the content instead of
+  // making them hunt for the X first. Buttons - the close control itself, inline
+  // rename forms, the add rows - keep the drawer open.
+  const handleDrawerClick = (event: MouseEvent<HTMLDivElement>) => {
+    if ((event.target as HTMLElement).closest("a[href]")) setOpen(false);
+  };
 
   return (
     <>
@@ -40,6 +48,7 @@ export function MobileSidebar({ children }: { children: ReactNode }) {
           <div
             role="dialog"
             aria-label="Menu"
+            onClick={handleDrawerClick}
             className="absolute inset-y-0 left-0 flex w-[280px] max-w-[85vw] flex-col overflow-y-auto bg-sidebar px-4 py-6 shadow-2xl"
           >
             <button

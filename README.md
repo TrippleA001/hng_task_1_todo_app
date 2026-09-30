@@ -44,6 +44,7 @@ dashboard settings (Email provider, redirect URLs) that are easy to forget.
 | `0002_rls.sql` | RLS enabled, one owner-only policy per table |
 | `0003_seed_on_signup.sql` | Seeds the mood board's demo data for each new account |
 | `0004_onboarding.sql` | `user_settings` (onboarding gate), `is_seeded` flags, hardened seeder |
+| `0005_restore_fixes.sql` | Seeder stamps `is_seeded` and reuses existing names so restore is reliable |
 
 RLS is the security boundary, not the key: every table is owned via `user_id`
 and the policy on each is `(select auth.uid()) = user_id` for all operations.
@@ -104,16 +105,22 @@ Done:
   server-side `requireUser()` gate that does not trust the proxy
 - Reads wired to Postgres, and mutations through Server Actions: create task,
   toggle a task or subtask, save changes (title, description, list, due date,
-  tags), delete a task, create a list, create a tag
+  tags), delete a task, and create / rename / delete lists and tags from the
+  sidebar (list delete confirms first - it cascades to its tasks)
 - URL-driven views: `?view=` picks the view, `?task=` opens the detail panel,
   `?q=` filters by title — shareable screens and a working back button
-- First-run walkthrough ending in "Ready to start adding your own tasks?":
-  yes wipes the demo workspace (`is_seeded` rows only), no keeps it
-- Settings view: account, sign out, clear / restore the demo workspace
+- First-run walkthrough in the order you meet the app (list → add → detail →
+  sidebar → demo choice), with clickable step dots, a real "Skip tour" that
+  finishes onboarding while keeping the demo, and a final choice that wipes
+  (`is_seeded` rows only) or keeps the demo workspace
+- Settings view: account, sign out, clear / restore the demo workspace (restore
+  re-seeds only when no demo tasks remain and never duplicates names)
 - Search, overdue highlighting (Today includes overdue tasks), a route loading
   skeleton, and an error boundary that surfaces real failure messages
 - Calendar month grid with `?month=` link navigation, and the Sticky Wall
   notes view
+- The mobile drawer closes as soon as you tap a navigation link instead of
+  waiting for the X
 
 Outstanding:
 

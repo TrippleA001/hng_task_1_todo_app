@@ -14,11 +14,11 @@ import { viewHref } from "@/lib/views";
 
 import { AddListRow } from "./AddListRow";
 import { AddTagRow } from "./AddTagRow";
-import { Chip } from "./Chip";
+import { ListRow } from "./ListRow";
 import { SearchBox } from "./SearchBox";
 import { SidebarRow } from "./SidebarRow";
 import { SidebarSection } from "./SidebarSection";
-import { Swatch } from "./Swatch";
+import { TagChip } from "./TagChip";
 
 /**
  * The left column: menu header, search, the TASKS / LISTS / TAGS groups and the
@@ -81,10 +81,11 @@ export function Sidebar({
 
         <SidebarSection title="Lists">
           {workspace.lists.map((list) => (
-            <SidebarRow
+            <ListRow
               key={list.id}
-              swatch={<Swatch color={list.color} />}
-              label={list.name}
+              id={list.id}
+              name={list.name}
+              color={list.color}
               count={countForList(workspace, list.id)}
               active={activeView === `list:${list.id}`}
               href={viewHref(`list:${list.id}`, query)}
@@ -94,11 +95,9 @@ export function Sidebar({
         </SidebarSection>
 
         <SidebarSection title="Tags">
-          <div className="flex flex-wrap items-center gap-2 px-2 pt-1">
+          <div className="flex flex-wrap items-center gap-1.5 px-2 pt-1">
             {workspace.tags.map((tag) => (
-              <Chip key={tag.id} tone="soft">
-                {tag.name}
-              </Chip>
+              <TagChip key={tag.id} id={tag.id} name={tag.name} />
             ))}
             <AddTagRow />
           </div>

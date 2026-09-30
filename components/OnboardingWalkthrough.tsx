@@ -2,12 +2,12 @@
 
 import { useActionState, useState } from "react";
 import {
-  Check,
   ChevronLeft,
   ChevronRight,
   ListTodo,
+  Menu,
   PanelRight,
-  Search,
+  Plus,
   Sparkles,
 } from "lucide-react";
 
@@ -17,31 +17,36 @@ import { cn } from "@/lib/cn";
 
 const initialState: ActionResult = { error: null };
 
+/**
+ * The tour in the order a newcomer actually meets the app: what they are
+ * looking at, how to add to it, how to change it, how to move around, then
+ * the one decision the demo workspace needs from them.
+ */
 const steps = [
   {
-    icon: Sparkles,
-    title: "Welcome to your task manager",
-    body: "Here is a quick tour of where everything lives. Every screen is a link, so you can bookmark, reload or share exactly what you are looking at.",
-  },
-  {
     icon: ListTodo,
-    title: "Your sidebar",
-    body: "Upcoming, Today, Calendar and Sticky Wall on the left, then your lists with their colours and live counts, and your tags. Search at the top filters whichever view you are in.",
+    title: "This is your task list",
+    body: "The middle pane opens on Today: everything due today or already overdue. Tick the circle on the left of a task to finish it, or click the task itself to see its details.",
   },
   {
-    icon: Search,
-    title: "Adding and completing tasks",
-    body: "\"Add New Task\" expands into a quick-add field - from Today a new task is due today, inside a list it joins that list. Tick the round checkbox to mark a task done.",
+    icon: Plus,
+    title: "Adding tasks takes seconds",
+    body: "Tap \"Add New Task\" at the bottom of the list, type your task and press Enter. From Today it lands with a due date of today; open a list first and the task joins that list instead.",
   },
   {
     icon: PanelRight,
-    title: "Task details",
-    body: "Click any task to open it: description, due date, list, tags and subtasks, all editable in place. On a phone the detail fills the screen and Back returns you to your list.",
+    title: "Click a task to edit everything",
+    body: "Title, description, due date, list, tags and subtasks all live in the panel on the right, editable right there. On a phone the panel fills the screen and Back returns you to your list.",
   },
   {
-    icon: Check,
-    title: "Ready to start adding your own tasks?",
-    body: "Your workspace is filled with demo tasks so you can see how everything looks. Want us to clear them out so you can start fresh?",
+    icon: Menu,
+    title: "The sidebar is your map",
+    body: "Jump between Upcoming, Today, Calendar and Sticky Wall, search from the top, and use the \"+\" rows to make your own Lists and Tags. On a phone, tap Menu up top to open the sidebar.",
+  },
+  {
+    icon: Sparkles,
+    title: "One last thing",
+    body: "Your workspace starts with a few example tasks so nothing looks empty. Clear them to start from scratch, or keep them as a starting point - you can change this any time in Settings.",
   },
 ];
 
@@ -75,19 +80,25 @@ export function OnboardingWalkthrough() {
         className="relative w-full max-w-[440px] rounded-[20px] border border-line bg-card p-7 shadow-[0_30px_80px_-45px_rgba(0,0,0,0.5)] sm:p-8"
       >
         <div className="mb-6 flex items-center justify-between">
-          <div className="flex gap-1.5" aria-hidden>
-            {steps.map((_, index) => (
-              <span
-                key={index}
+          <div className="flex gap-1.5">
+            {steps.map((stepItem, index) => (
+              <button
+                key={stepItem.title}
+                type="button"
+                onClick={() => setStep(index)}
+                aria-label={`Go to step ${index + 1}: ${stepItem.title}`}
+                aria-current={index === step ? "step" : undefined}
                 className={cn(
                   "h-1.5 rounded-full transition-all",
-                  index === step ? "w-5 bg-ink" : "w-1.5 bg-line-strong",
+                  index === step
+                    ? "w-5 bg-ink"
+                    : "w-1.5 bg-line-strong hover:bg-muted",
                 )}
               />
             ))}
           </div>
           <span className="text-[12px] text-muted">
-            {step + 1} of {steps.length}
+            Step {step + 1} of {steps.length}
           </span>
         </div>
 
@@ -101,40 +112,58 @@ export function OnboardingWalkthrough() {
         <p className="mt-3 text-[15px] leading-6 text-ink-soft">{body}</p>
 
         {isLast ? (
-          <form action={formAction} className="mt-7 space-y-2.5">
-            <button
-              type="submit"
-              name="clearDemo"
-              value="true"
-              disabled={pending}
-              className="w-full rounded-[10px] bg-accent px-4 py-3 text-[15px] font-semibold text-ink transition-colors hover:bg-accent-strong disabled:opacity-60"
-            >
-              {pending ? "Cleaning up…" : "Yes, clear the demo tasks"}
-            </button>
-            <button
-              type="submit"
-              name="clearDemo"
-              value="false"
-              disabled={pending}
-              className="w-full rounded-[10px] border border-line-strong px-4 py-3 text-[15px] font-medium text-ink transition-colors hover:bg-black/[0.03] disabled:opacity-60"
-            >
-              Keep the demo tasks
-            </button>
-            {state.error && (
-              <p role="alert" className="text-[13px] text-ink">
-                {state.error}
-              </p>
-            )}
-          </form>
+          <div className="mt-7 space-y-3">
+            <form action={formAction} className="space-y-2.5">
+              <button
+                type="submit"
+                name="clearDemo"
+                value="true"
+                disabled={pending}
+                className="w-full rounded-[10px] bg-accent px-4 py-3 text-[15px] font-semibold text-ink transition-colors hover:bg-accent-strong disabled:opacity-60"
+              >
+                {pending ? "Starting…" : "Start fresh - clear the demo tasks"}
+              </button>
+              <button
+                type="submit"
+                name="clearDemo"
+                value="false"
+                disabled={pending}
+                className="w-full rounded-[10px] border border-line-strong px-4 py-3 text-[15px] font-medium text-ink transition-colors hover:bg-black/[0.03] disabled:opacity-60"
+              >
+                Keep the demo tasks
+              </button>
+              {state.error && (
+                <p role="alert" className="text-[13px] text-ink">
+                  {state.error}
+                </p>
+              )}
+            </form>
+            <div className="flex justify-center">
+              <button
+                type="button"
+                onClick={() => setStep((current) => current - 1)}
+                disabled={pending}
+                className="flex items-center gap-1 text-[14px] text-muted transition-colors hover:text-ink disabled:opacity-60"
+              >
+                <ChevronLeft aria-hidden className="size-4" />
+                Back
+              </button>
+            </div>
+          </div>
         ) : (
           <div className="mt-7 flex items-center justify-between">
-            <button
-              type="button"
-              onClick={() => setStep(steps.length - 1)}
-              className="text-[14px] text-muted transition-colors hover:text-ink"
-            >
-              Skip tour
-            </button>
+            {/* A true skip: finish onboarding now and keep everything as-is. */}
+            <form action={formAction}>
+              <button
+                type="submit"
+                name="clearDemo"
+                value="false"
+                disabled={pending}
+                className="text-[14px] text-muted transition-colors hover:text-ink disabled:opacity-60"
+              >
+                Skip tour
+              </button>
+            </form>
             <div className="flex items-center gap-2">
               <button
                 type="button"

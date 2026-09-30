@@ -11,8 +11,9 @@ order — they depend on each other:
 | 2 | `migrations/0002_rls.sql` | Enables RLS and adds one owner-only policy per table |
 | 3 | `migrations/0003_seed_on_signup.sql` | Seeds the mood board's demo data for each new account |
 | 4 | `migrations/0004_onboarding.sql` | `user_settings` (onboarding gate), `is_seeded` demo flags, hardened seeder |
+| 5 | `migrations/0005_restore_fixes.sql` | Seeder stamps `is_seeded` and reuses existing list/tag names so restore is reliable |
 
-All four are re-runnable (they use `create table if not exists`,
+All five are re-runnable (they use `create table if not exists`,
 `create or replace`, and `drop ... if exists` before each trigger/policy), so
 running one twice is harmless.
 
